@@ -27,6 +27,7 @@
     </v-app-bar>
 
     <v-content>
+      <router-view/>
     </v-content>
     <v-footer color="indigo" app>
       <span class="white--text">&copy; 2019</span>
@@ -35,12 +36,11 @@
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld,
+    
   },
   data: () => ({
     drawer: false
