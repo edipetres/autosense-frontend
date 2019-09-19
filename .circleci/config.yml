@@ -1,0 +1,133 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:8.12.0
+      
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/mongo:3.4.4
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1.0-dependencies-{{ checksum "package.json" }}
+
+      - run: 
+          name: Install dependencies
+          command: npm install
+
+      - run: 
+          name: Build production code
+          command: npm run build
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1.0-dependencies-{{ checksum "package.json" }}
+        
+      # run tests!
+      # - run: npm run test
+
+      - run: zip -r dist.zip ./dist
+
+      # persist files to be accessible from another pipeline job (deploy in our case)
+      - persist_to_workspace:
+          root: ~/repo
+          paths:
+            - dist.zip # packaged frontend code
+
+  deploy:
+    docker:
+      - image: circleci/python:2.7-jessie
+
+    working_directory: ~/repo
+    
+    steps:
+      - checkout
+
+      - run:
+          name: Install awscli and awsebcli
+          command: |
+            sudo pip install awscli
+      
+      # download files persisted in another job
+      - attach_workspace:
+          at: ~/workspace
+
+      - run:
+          name: Unpackage frontend code
+          command: unzip dist.zip
+          working_directory: ~/workspace
+
+      - run:
+          name: Deploy frontend to AWS S3
+          command: aws s3 cp dist s3://$S3_BUCKET_NAME/ --recursive
+          working_directory: ~/workspace
+
+  deploy_to_production:
+    docker:
+      - image: circleci/python:2.7-jessie
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install awscli and awsebcli
+          command: |
+            sudo pip install awscli
+            sudo pip install awsebcli --upgrade
+
+      # download files persisted in another job
+      - attach_workspace:
+          at: ~/workspace
+      
+      - run:
+          name: Unpackage frontend code
+          command: unzip dist.zip
+          working_directory: ~/workspace
+      
+      - run:
+          name: Deploy frontend to AWS S3
+          command: aws s3 cp dist s3://$S3_BUCKET_NAME_PROD/ --recursive
+          working_directory: ~/workspace
+
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+
+  build_and_deploy_to_production:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - deploy_to_production:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
