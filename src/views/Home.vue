@@ -6,7 +6,7 @@
         <fleet-table @carSelected="onCarSelected"></fleet-table>
         
         <v-alert dense type="info" text class="mt-2">
-          Click on a car to see it on the map.
+          Click on a car to see it on the map. Click on the registration number for editing.
         </v-alert>
       </v-col>
 
