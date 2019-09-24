@@ -1,13 +1,12 @@
 <template>
   <v-container fluid>
     <v-row>
-
       <v-col cols="12" md="6">
         <fleet-table @carSelected="onCarSelected" :isLoading="isLoading" @refreshData="loadVehicles"></fleet-table>
         
         <v-alert dense type="info" text class="mt-2">
-          Click on a car to see it on the map; 
-          click on the registration number for editing.
+          Click on a car to see it on the map. <br>
+          Click on the registration number for editing.
         </v-alert>
       </v-col>
 

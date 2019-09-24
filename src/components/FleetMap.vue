@@ -25,17 +25,15 @@ export default {
     }
   },
   watch: {
-    // on car selected from list
+    // when a new car is clicked on in the list
     selectedCar: function (car) {
-      const self = this
-
       const selectedCarLatLng = {
         lat: car.location.latitude,
         lng: car.location.longitude
       }
 
       // find the vehicle's marker that was clicked on
-      let filteredMarkers = this.fleetMarkers.filter(marker => marker._id.toString() === car._id.toString())
+      const filteredMarkers = this.fleetMarkers.filter(marker => marker._id.toString() === car._id.toString())
       const foundMarker = filteredMarkers.length > 0 ? filteredMarkers[0] : null
 
       // change the clicked marker's icon
@@ -44,8 +42,8 @@ export default {
         foundMarker.setIcon('/img/marker_green.png')
       }
 
-      // center map to marker
-      this.map.setCenter(selectedCarLatLng)
+      // center marker on map
+      this.map.panTo(selectedCarLatLng)
     },
 
     // show all vehicles on the map
@@ -54,7 +52,7 @@ export default {
     }
   },
   methods: {
-    initMap () {
+    initMap() {
       this.map = new google.maps.Map(document.getElementById('map'), {
         center: {
           lat: 47.3929301,
@@ -63,15 +61,20 @@ export default {
         zoom: 12
       })
     },
+
     clearFleetMarkers() {
-      this.fleetMarkers.forEach(marker => {
+      for (let marker of this.fleetMarkers) {
         marker.setMap(null)
-      })
+      }
+      this.fleetMarkers = []
     },
+
     initializeVehicleMarkers(vehicles) {
+      // remove all previous markers
       this.clearFleetMarkers()
 
-      vehicles.forEach(vehicle => {
+      for (let vehicle of vehicles) {
+        // initialize new marker
         let vehicleMarker = new google.maps.Marker({
           position: {
             lat: vehicle.location.latitude,
@@ -79,12 +82,22 @@ export default {
           },
           map: this.map
         })
-
+        // add id to marker so we can reference it
         vehicleMarker._id = vehicle._id
-
         this.fleetMarkers.push(vehicleMarker)
-      })
+      }
+      // after placing all markers center map around them
+      this.centerMapAroundMarkers()
     },
+
+    centerMapAroundMarkers() {
+      let bounds = new google.maps.LatLngBounds();
+      for (let marker of this.fleetMarkers) {
+        bounds.extend(marker.getPosition());
+      }
+      this.map.fitBounds(bounds)
+    },
+
     resetAllMarkersIcons() {
       this.fleetMarkers.forEach(marker => marker.setIcon())
     }
