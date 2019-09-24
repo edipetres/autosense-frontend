@@ -29,6 +29,8 @@
 
       </v-data-table>
     </v-card>
+
+    <!-- Notifications dialog -->
     <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
       {{ snackText }}
       <v-btn text @click="snack = false">Close</v-btn>
@@ -48,7 +50,6 @@
       snackColor: '',
       snackText: '',
       max10chars: v => v.length <= 10 || 'Input too long!',
-      search: '',
       headers: [{
           text: 'Registration number',
           align: 'left',
@@ -70,13 +71,15 @@
       ]
     }),
     computed: {
+      // process the vehicle data that is in store
       computedVehicles: function () {
         return this.$store.state.vehicles.map(car => {
           // compute the fuel levels
           if (!car.fuel.level) {
             car.computedFuel = car.fuel.liters + ' liters'
           } else {
-            car.computedFuel = car.fuel.liters * 100 / car.fuel.level + '%'
+            const fuelPercentage = car.fuel.liters * 100 / car.fuel.level
+            car.computedFuel = `${fuelPercentage}% (${car.fuel.liters}l)`
           }
 
           return car

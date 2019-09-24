@@ -4,6 +4,8 @@
 
 [Demo website](http://autosense-frontend.s3-website.eu-central-1.amazonaws.com/) hosted on AWS S3 as a static website.
 
+This single page web app supports both mobile and desktop browsers.
+
 ## Architecture
 
 The project implements one view in the component called `Home.vue`. This is responsible for loading the data upon app startup and stores it in the store - for having a single source of truth. The view of the `Home` component is wrapped inside the main entry file `App.vue` which displays the navigation, footer and sidebars. This allows the code inside the view to be focused on their own role and not have to manage menus and navigational panels.
@@ -14,6 +16,8 @@ There are two components inside Home: `FleetMap.vue` and `FleetTable.vue`. `Flee
 ![System architecture](docs/system-architecture.png)
 
 ## Continuous Integration and Delivery
+
+The CI pipeline configuration as code can be found at [.circleci/config.yml](.circleci/config.yml)
 
 Similarly to our backend CI pipeline, this project also implements a CircleCI build server that installs all dependencies on a clean machine and builds then pushes the production files to Amazon S3. Testing should be included here in the pipeline before the deployment step. When a satisfying code coverage is achieved we can trust the build server to deploy each version staright to production.
 
@@ -26,6 +30,10 @@ Thanks to Vuetify's grid system the app implements a responsive layout. In our c
 ## Progressive Web App
 
 While the app can be used in mobile browsers, it can also be upgraded to a PWA which allows the app to be 'installed' on the home screen and work even when it's offline. When the app is installed it will look and feel like a native application. However, our Progressive Web App capabilities are limited (like service worker) due to not currently running on HTTPS.
+
+## Testability
+
+In this project we have tools set up for end-to-end and unit testing. The single responsibility of the components helps increase the testability and e2e tests can ensure the application is displaying the content it should.
 
 ## Tools
 
