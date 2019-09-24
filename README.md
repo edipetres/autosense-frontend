@@ -10,7 +10,12 @@ The project implements one view in the component called `Home.vue`. This is resp
 
 There are two components inside Home: `FleetMap.vue` and `FleetTable.vue`. `FleetMap` implements Google maps and loads the vehicle's position data from the store. It can also talk to the parent component to trigger a refresh of the data. `FleetTable` processes the data from the store lists all the cars. It enables editing of the car's registration which triggers a `PUT` request to be sent to the server.
 
-There is an example side navigation drawer that automatically adjusts for each device size.
+## Architecture diagram of the Systems
+![System architecture](docs/system-architecture.png)
+
+## Continuous Integration and Delivery
+
+Similarly to our backend CI pipeline, this project also implements a CircleCI build server that installs all dependencies on a clean machine and builds then pushes the production files to Amazon S3. Testing should be included here in the pipeline before the deployment step. When a satisfying code coverage is achieved we can trust the build server to deploy each version staright to production.
 
 ## Responsive layout
 
@@ -21,10 +26,6 @@ Thanks to Vuetify's grid system the app implements a responsive layout. In our c
 ## Progressive Web App
 
 While the app can be used in mobile browsers, it can also be upgraded to a PWA which allows the app to be 'installed' on the home screen and work even when it's offline. When the app is installed it will look and feel like a native application. However, our Progressive Web App capabilities are limited (like service worker) due to not currently running on HTTPS.
-
-## Continuous Integration and Delivery
-
-Similarly to our backend CI pipeline, this project also implements a CircleCI build server that installs all dependencies on a clean machine and builds then pushes the production files to Amazon S3. Testing should be included here in the pipeline before the deployment step. When a satisfying code coverage is achieved we can trust the build server to deploy each version staright to production.
 
 ## Tools
 
