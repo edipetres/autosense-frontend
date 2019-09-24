@@ -3,10 +3,13 @@
     <v-card-title>
       Your cars
       <div class="flex-grow-1"></div>
-      <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
+      <!-- <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field> -->
+       <v-btn text icon color="primary" @click="$emit('refreshData')">
+          <v-icon>mdi-cached</v-icon>
+        </v-btn>
     </v-card-title>
 
-    <v-data-table :headers="headers" :items="fleet" @click:row="onCarSelected" hide-default-footer>
+    <v-data-table :headers="headers" :items="$store.state.vehicles" @click:row="onCarSelected" hide-default-footer :loading="isLoading">
       <!-- customize certain columns -->
       <template v-slot:item.registration="props">
         <v-edit-dialog :return-value.sync="props.item.registration" @save="save" @cancel="cancel" @open="open"
@@ -18,6 +21,7 @@
         </v-edit-dialog>
       </template>
 
+      <!-- define custom row for battery field with style -->
       <template v-slot:item.bat="{ item }">
         <v-chip :color="getColor(item.bat)" dark>{{ item.bat }}</v-chip>
       </template>
@@ -33,6 +37,7 @@
   export default {
     props: {
       source: String,
+      isLoading: Boolean
     },
     data: () => ({
       drawer: null,
@@ -57,59 +62,6 @@
           text: 'Battery Status',
           value: 'bat'
         },
-      ],
-      fleet: [{
-          "location": {
-            "latittude": 47.3799174,
-            "longitude": 8.5367373
-          },
-          "registration": "ZH-123 456",
-          "mlieage": 4356.5,
-          "fuel": {
-            "level": 80,
-            "litters": 38
-          },
-          "bat": "GOOD"
-        },
-        {
-          "location": {
-            "latittude": 47.3753548,
-            "longitude": 8.545299
-          },
-          "registration": "ZH-453 456",
-          "mlieage": 97306.5,
-          "fuel": {
-            "level": 100,
-            "litters": 45
-          },
-          "bat": "GOOD"
-        },
-        {
-          "location": {
-            "latittude": 47.360204,
-            "longitude": 8.5334757
-          },
-          "registration": "ZH-166 98",
-          "mlieage": 12256.5,
-          "fuel": {
-            "level": null,
-            "litters": 33.5
-          },
-          "bat": "GOOD"
-        },
-        {
-          "location": {
-            "latittude": 47.3929301,
-            "longitude": 8.5486769
-          },
-          "registration": "ZH-13 46",
-          "mlieage": 45566.5,
-          "fuel": {
-            "level": 10,
-            "litters": 8
-          },
-          "bat": "GOOD"
-        }
       ]
     }),
     methods: {

@@ -3,15 +3,16 @@
     <v-row>
 
       <v-col cols="12" md="6">
-        <fleet-table @carSelected="onCarSelected"></fleet-table>
+        <fleet-table @carSelected="onCarSelected" :isLoading="isLoading" @refreshData="loadVehicles"></fleet-table>
         
         <v-alert dense type="info" text class="mt-2">
-          Click on a car to see it on the map. Click on the registration number for editing.
+          Click on a car to see it on the map; 
+          click on the registration number for editing.
         </v-alert>
       </v-col>
 
       <v-col cols="12" md="6">
-        <fleet-map :location="selectedCarLocation"></fleet-map>
+        <fleet-map :selectedCar="selectedCar"></fleet-map>
       </v-col>
     </v-row>
 
@@ -34,18 +35,34 @@ export default {
   },
   data() {
     return {
-      selectedCarLocation: {
-        latitude: 47.3929301,
-        longitude: 8.5486769
-      },
+      isLoading: false,
+      selectedCar: null,
       snack: false,
       snackColor: '',
       snackText: '',
     }
   },
+  created() {
+    this.loadVehicles()
+  },
   methods: {
-    onCarSelected: function (car) {
-      this.selectedCarLocation = car.location
+    onCarSelected(car) {
+      this.selectedCar = car
+    },
+    loadVehicles() {
+      const self = this
+      this.isLoading = true
+
+      this.$http.get('/vehicles')
+        .then(response => {
+          self.$store.commit('setVehicles', response.data.payload)
+        })
+        .catch(error => {
+          console.log('error', error)
+        })
+        .finally(() => {
+          self.isLoading = false
+        })
     }
   }
 };
