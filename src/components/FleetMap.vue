@@ -21,7 +21,8 @@ export default {
   data() {
     return {
       selectionMarker: null,
-      fleetMarkers: []
+      fleetMarkers: [],
+      infowindows: []
     }
   },
   watch: {
@@ -44,6 +45,7 @@ export default {
 
       // center marker on map
       this.map.panTo(selectedCarLatLng)
+      this.closeAllInfoWindows()
     },
 
     // show all vehicles on the map
@@ -74,7 +76,9 @@ export default {
       this.clearFleetMarkers()
 
       for (let vehicle of vehicles) {
-        // initialize new marker
+        const vm = this
+
+        // create new marker object
         let vehicleMarker = new google.maps.Marker({
           position: {
             lat: vehicle.location.latitude,
@@ -82,9 +86,24 @@ export default {
           },
           map: this.map
         })
+
         // add id to marker so we can reference it
         vehicleMarker._id = vehicle._id
+
+        // create info window with vehicle info
+        let infowindow = new google.maps.InfoWindow({
+          content: `<div id="content"><p>${vehicle.registration}</p></div>`
+        });
+
+        // attach a click listener for each marker
+        vehicleMarker.addListener('click', function () {
+          vm.closeAllInfoWindows()
+          infowindow.open(map, vehicleMarker);
+        });
+
+        // collect new markers and infowindows in designated arrays
         this.fleetMarkers.push(vehicleMarker)
+        this.infowindows.push(infowindow)
       }
       // after placing all markers center map around them
       this.centerMapAroundMarkers()
@@ -100,6 +119,10 @@ export default {
 
     resetAllMarkersIcons() {
       this.fleetMarkers.forEach(marker => marker.setIcon())
+    },
+
+    closeAllInfoWindows() {
+      this.infowindows.forEach(infowindow => infowindow.close())
     }
   }
 }
